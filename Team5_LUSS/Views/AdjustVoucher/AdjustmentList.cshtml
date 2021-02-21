@@ -1,0 +1,79 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var adjustmentVoucherList = (List<AdjustmentVoucher>)ViewData["allAdjustments"];
+}
+
+
+    <div class="container-fluid site-width">
+
+        <div class="modal fade" id="editinvoice">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="icon-pencil"></i> Stationary Collection Form
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <i class="icon-close"></i>
+                        </button>
+                    </div>
+                    <form action="VoucherForm">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="example" class="display table dataTable table-striped table-bordered">
+
+                                    <thead>
+                                        <tr>
+                                            <th>Adjustment ID</th>
+                                            <th>Status</th>
+                                            <th>Total Cost</th>
+                                            <th>Adjust Quantity</th>
+                                            <th>Adjust Type</th>
+                                        </tr>
+                                    </thead>
+                                    @foreach (var r in adjustmentVoucherList)
+                                    {
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row">@r.AdjustmentID</th>
+                                                <td>@r.Status</td>
+                                                <td>@r.TotalCost</td>
+                                                <td>@r.AdjustQty</td>
+                                                <td>@r.AdjustType</td>
+                                                <td>
+                                                    <button type="button" class="btn btn" @* DETAIL VIEW*@
+                                                            onclick="location.href='@Url.Action("VoucherApproveDetails", "AdjustmentList", new { AdjustmentID = @r.AdjustmentID})'">
+                                                        Details
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    }
+                                </table>
+                            </div>
+                        </div>
+                      
+                    </form>
+                </div>
+            </div>
+        </div>
+        @* data table content end*@
+        @*<script src="~/js/UI/datatable.script.js"></script>*@
+        <script src="~/js/System/StationeryRequests/jquery.min.js"></script>
+        <script src="~/vendors/datatable/js/jquery.dataTables.min.js"></script>
+        <!-- START: Page Script JS-->
+        @* data table ^^*@
+        <script>
+            $(document).ready(function ()
+            {
+
+                $('#example').DataTable
+                ({
+                 responsive: true
+                });
+            })
+        @* data table ^^*@
+
+
+        </script>
+    </div>

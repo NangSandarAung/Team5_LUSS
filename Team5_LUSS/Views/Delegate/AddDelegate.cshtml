@@ -1,0 +1,246 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var deptUsers = (List<User>)ViewData["users"];
+    string DeleteMsg = null;
+
+
+    if (ViewData["DeleteMsg"] != null)
+    {
+        DeleteMsg = ViewData["DeleteMsg"].ToString();
+    }
+}
+
+
+
+@model DelegatedManager
+
+<div class="row ">
+    <div class="col-12  align-self-center">
+        <div class="sub-header mt-3 py-3 align-self-center d-sm-flex w-100 rounded">
+            <div class="w-sm-100 mr-auto"><h4 class="mb-0">Delegate</h4></div>
+        </div>
+    </div>
+</div>
+<div class="row ">
+    <div class="col-12 col-lg-12  col-xl-12 mt-12">
+        <div class="card bg-light">
+            <div class="card-header">
+                Current Delegate
+
+            </div>
+            <div class="card-body">
+
+
+                <div class="table-responsive">
+                    <table class="table layout-primary bordered">
+                        <thead>
+                            <tr>
+
+                                <th scope="col">Name</th>
+                                <th scope="col">Start Date</th>
+                                <th scope="col">End Date</th>
+                                <th scope="col">Active</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (User user in deptUsers)
+                            {
+                                if (user.DelegatedManager != null)
+                                {
+                                    <tr>
+                                        <td>@user.FirstName  @user.LastName</td>
+                                        <td> @Html.DisplayFor(modelItem => user.DelegatedManager.FromDate)</td>
+                                        <td> @Html.DisplayFor(modelItem => user.DelegatedManager.ToDate)</td>
+                                        @if (user.DelegatedManager.isActive == true)
+                                        {
+                                       <td style="text-align:center"><span class="bg-danger  text-white card-liner-small-tip">Active</span></td>
+                                        }
+                                        else
+                                        {
+                                            <td style="text-align:center">  </td>
+                                        }
+
+
+                                        <td>
+                                            <button type="button" class="btn btn-danger" title="Remove" onclick="location.href='@Url.Action("DeleteDelegate", "Delegate", new { id = user.DelegatedManager.DelegatedManagerID })'"> Remove</button>
+                                        </td>
+
+                                    </tr>
+
+                                }
+
+                            }
+
+
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 col-lg-6  col-xl-4 mt-3">
+        <div class="card" style="margin-top: -5%; min-height: 100%;">
+            <div class="card-body">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Name</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="skin skin-flat">
+                            <ul class="list list-unstyled  mr-3">
+                                @{
+                                    foreach (User u in deptUsers)
+                                    {
+                                        <li>
+                                            <input tabindex="7" type="radio" id="rdo_@u.UserID" value="@u.UserID" name="rdo_depUsers">
+                                            <label id="lbl_@u.UserID">@u.FirstName   @u.LastName </label>
+
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-6  col-xl-8 mt-9">
+        <div class="card" style="min-height:100%">
+            <div class="card-body">
+                <form method="post" asp-action="AddDelegate">
+                    <div class="row">
+                        <div class="col-12 col-lg-6  col-xl-6 mt-6">
+                            <input type="hidden" name="UserID" id="userID" value="" asp-for="UserID" />
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title">Set Date Range</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group col-md-12">
+                                        <label for="inputDate">Start Date</label>
+                                        <input type="date" class="txtDate form-control" asp-for="FromDate" name="FromDate" id="startDate" onchange="BindStartDate();">
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <label for="inputDate">End Date</label>
+                                        <input type="date" class=" txtDate form-control" asp-for="ToDate" name="ToDate" id="endDate" onchange="BindEndDate();">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6  col-xl-6 mt-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title">Confirm</h4>
+                                    <h6><small><span class="text-danger p-sm-0" id="showMsg"></span></small></h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <label for="requestID" class="col-sm-4 col-form-label">Delegate :</label>
+                                        <label for="requestID" class="col-sm-8 col-form-label"><span id="lblDelegate"></span></label>
+
+                                    </div>
+                                    <div class="row">
+                                        <label for="requestID" class="col-sm-4 col-form-label">Start Date:</label>
+                                        <label for="requestID" class="col-sm-8 col-form-label"><span id="lblStartDate"></span></label>
+
+                                    </div>
+                                    <div class="row">
+                                        <label for="requestID" class="col-sm-4 col-form-label">End Date:</label>
+                                        <label for="requestID" class="col-sm-8 col-form-label"><span id="lblEndDate"></span></label>
+
+                                    </div>
+                                    <div class="row" id="btn_gp" style="display:none;">
+                                        <div class="col-sm-4" ></div>
+                                        <span>&nbsp;&nbsp;&nbsp;</span><button type="submit" class="btn btn-success" id="btnAssign">Assign</button> 
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script src="~/js/System/StationeryRequests/jquery.min.js"></script>
+<script src="~/vendors/fullcalendar/bundle/moment.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#li_dHeadDelegate").addClass("active");
+          toastr.options = {
+                             tapToDismiss: true,
+                             toastClass: 'toast',
+                             containerId: 'toast-container',
+                             iconClass: 'toast-info',
+                             positionClass: 'toast-top-right',
+                             timeOut: 500, // Set timeOut to 0 to make it sticky
+                             titleClass: 'toast-title',
+                             messageClass: 'toast-message'
+                         };
+
+        if ('@DeleteMsg' != '') {
+            toastr["info"]('@DeleteMsg');
+
+        }
+
+        var dtToday = new Date();
+
+        var month = dtToday.getMonth() + 1;
+        var day = dtToday.getDate();
+        var year = dtToday.getFullYear();
+        if (month < 10)
+            month = '0' + month.toString();
+        if (day < 10)
+            day = '0' + day.toString();
+
+        var maxDate = year + '-' + month + '-' + day;
+     
+        $('.txtDate').attr('min', maxDate);
+    });
+
+    function BindStartDate() {
+        $("#lblStartDate").html($("#startDate").val());
+        $('#endDate').attr('min', $("#startDate").val()); 
+        CheckForDisplay();
+       
+    };
+    function BindEndDate() {
+        $("#lblEndDate").html($("#endDate").val());
+        CheckForDisplay();
+        //alert($("#endDate").val());
+    };
+    function CheckForDisplay() {
+        if ($("#startDate").val() != "" && $("#endDate").val() != "" && $("#userID").val() != "") {
+            $("#btn_gp").css("display", "block");
+        }
+        
+    }
+
+    $('input[type=radio][name=rdo_depUsers]').change(function () {
+        var userId = this.value;
+
+        $("#userID").val(userId);
+        $("#lblDelegate").html($("#lbl_" + userId).text());
+        $("#sp_selectUser").html($("#lbl_" + userId).text());
+        CheckForDisplay();
+            return true;
+    });
+
+
+</script>

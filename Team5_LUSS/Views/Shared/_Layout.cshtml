@@ -1,0 +1,294 @@
+﻿@using Microsoft.AspNetCore.Http;
+
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+
+@{
+    string username = (string)Context.Session.GetString("User");
+    int DeptId = (int)Context.Session.GetInt32("DeptId");
+    string UserRole = (string)Context.Session.GetString("UserRole");
+
+}
+<!DOCTYPE html>
+<html lang="en">
+<!-- START: Head-->
+<head>
+    <meta charset="UTF-8">
+    <title>LU Stationery Admin</title>
+    <link rel="shortcut icon" href="~/images/favicon.ico" />
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <!-- START: Template CSS-->
+    <link rel="stylesheet" href="~/vendors/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/vendors/jquery-ui/jquery-ui.min.css">
+    <link rel="stylesheet" href="~/vendors/jquery-ui/jquery-ui.theme.min.css">
+    <link rel="stylesheet" href="~/vendors/simple-line-icons/css/simple-line-icons.css">
+    <link rel="stylesheet" href="~/vendors/flags-icon/css/flag-icon.min.css">
+    <!-- END Template CSS-->
+    <!-- START: Page CSS-->
+    <link rel="stylesheet" href="~/vendors/chartjs/Chart.min.css">
+    <!-- END: Page CSS-->
+    <!-- START: Page CSS-->
+    <link rel="stylesheet" href="~/vendors/morris/morris.css">
+    <link rel="stylesheet" href="~/vendors/weather-icons/css/pe-icon-set-weather.min.css">
+    <link rel="stylesheet" href="~/vendors/chartjs/Chart.min.css">
+    <link rel="stylesheet" href="~/vendors/starrr/starrr.css">
+    <link rel="stylesheet" href="~/vendors/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="~/vendors/ionicons/css/ionicons.min.css">
+    <link rel="stylesheet" href="~/vendors/jquery-jvectormap/jquery-jvectormap-2.0.3.css">
+    <link rel="stylesheet" href="~/vendors/toastr/toastr.css">
+    <link rel="stylesheet" href="~/vendors/sweetalert/sweetalert.css">
+    <link rel="stylesheet" href="~/vendors/datatable/css/jquery.dataTables.min.css">
+    <!-- END: Page CSS-->
+    <!-- START: Custom CSS-->
+    <link rel="stylesheet" href="~/css/main.css">
+    <link rel="stylesheet" href="~/css/item.css">
+    <!-- END: Custom CSS-->
+    <script src="~/vendors/jquery/jquery-3.3.1.min.js"></script>
+</head>
+<!-- END Head-->
+<!-- START: Body-->
+<body id="main-container" class="default">
+
+    <!-- START: Pre Loader-->
+    <div class="se-pre-con">
+        <div class="loader"></div>
+    </div>
+    <!-- END: Pre Loader-->
+    <!-- START: Header-->
+    <div id="header-fix" class="header fixed-top">
+        <div class="site-width">
+            <nav class="navbar navbar-expand-lg  p-0">
+                <div class="navbar-header  h-100 h4 mb-0 align-self-center logo-bar text-left">
+                    <img src="~/images/LU_2_png.png" style="width:24px;height:24px;" />   <span class="h4 font-weight-bold align-self-center mb-0 ml-auto">LU Stationery</span>
+                </div>
+                <div class="navbar-header h4 mb-0 text-center h-100 collapse-menu-bar">
+                    <a href="#" class="sidebarCollapse" id="collapse"><i class="icon-menu"></i></a>
+                </div>
+                <div class="navbar-right ml-auto h-100">
+                    <ul class="ml-auto p-0 m-0 list-unstyled d-flex top-icon h-100">
+                        <li class="d-inline-block align-self-center  d-block d-lg-none">
+                            <a href="#" class="nav-link mobilesearch" data-toggle="dropdown" aria-expanded="false">
+                                <i class="icon-magnifier h4"></i>
+                            </a>
+                        </li>
+                        @if (UserRole == "dept_employee" || UserRole == "dept_rep")
+                        {
+                            <li id="cartpartial" class="dropdown align-self-center">
+                                @{
+                                    Html.RenderPartial("~/Views/ItemList/_CartPartial.cshtml");
+                                }
+                            </li>
+                         }
+                        <!--Notification-->
+                        <li class="dropdown align-self-center d-inline-block">
+                            @{
+                                Html.RenderPartial("~/Views/Notification/_NotiPartial.cshtml");
+                            }
+
+                        </li>
+                        <li class="dropdown user-profile align-self-center d-inline-block">
+                            <a href="#" class="nav-link py-0" data-toggle="dropdown" aria-expanded="false">
+                                <div>
+                                    <p>Hi, @username</p>
+
+                                </div>
+                            </a>
+
+                            <div class="dropdown-menu border dropdown-menu-right p-0">
+                                <a class="dropdown-item px-2 text-danger align-self-center d-flex"
+                                   asp-controller="Home" asp-action="Logout">
+                                    <span class="icon-logout mr-2 h6  mb-0"></span> Sign Out
+                                </a>
+
+                            </div>
+
+                        </li>
+
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <!-- END: Header-->
+    <!-- START: Main Menu-->
+    <div class="sidebar">
+        <div class="site-width">
+            <!-- START: Menu-->
+            <ul id="side-menu" class="sidebar-menu">
+
+                @if (DeptId == 10 && UserRole == "store_clerk")
+                {
+                    @*Store*@
+                    <li class="dropdown active" id="menu_store">
+                        <a href="#"><i class="icon-organization mr-1"></i>Menu</a>
+                        <ul>
+                            <li id="li_storeDashboard"><a asp-controller="ClerkDash" asp-action="Index"><i class="icon-rocket"></i> Dashboard</a></li>
+                            <li id="li_storeInventory"><a asp-controller="ItemList" asp-action="InventoryList"><i class="icon-layers"></i> Inventory List</a></li>
+                            <li id="li_disbursement"><a asp-controller="Disbursement" asp-action="ManageDisbursement"><i class="icon-support"></i>Manage Disbursement</a></li>
+                            <li id="li_adjustStock"><a asp-controller="AdjustVoucher" asp-action="GetAdjustmentVoucherByRequestor"><i class="icon-puzzle"></i>Adjust Stock</a></li>
+
+                            <li class="dropdown" id="li_disbursement">
+                                <a asp-controller="Delivery" asp-action="Index"><i class="icon-briefcase"></i>Manage Delivery</a>
+                                <ul class="sub-menu">
+                                    <li><a asp-controller="Delivery" asp-action="ConfirmDelivery"><i class="icon-energy"></i>By Request</a></li>
+                                    <li><a asp-controller="Delivery" asp-action="DeptConfirmDelivery"><i class="icon-disc"></i>By Department</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown" id="li_po">
+                                <a><i class="icon-briefcase"></i>Purchase Orders</a>
+                                <ul class="sub-menu">
+                                    <li><a asp-controller="Purchase" asp-action="ViewLowStockItems"><i class="icon-exclamation"></i>Low Stock</a></li>
+                                    <li><a asp-controller="Purchase" asp-action="PurchaseOrders"><i class="icon-energy"></i>PO History</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                }
+
+                @if (DeptId == 10 && UserRole == "store_supervisor" || UserRole == "store_manager")
+                {
+                    @*Store Manager*@
+                    <li class="dropdown" id="menu_mgstore">
+                        <a href="#"><i class="icon-organization mr-1"></i>Menu</a>
+                        <ul>
+                            <li id="li_mgstoreDashboard"><a asp-controller="SupDash" asp-action="Index"><i class="icon-rocket"></i> Dashboard</a></li>
+                            <li id="li_mgstoreInventory"><a asp-controller="ItemList" asp-action="InventoryList"><i class="icon-layers"></i> Inventory List</a></li>
+                            <li id="li_adjustVouncher"><a href="/AdjustmentList/AdjustmentVouchers"><i class="icon-puzzle"></i> Adjust Stock</a></li>
+                            <li id="li_reports"><a asp-controller="Report" asp-action="Index"><i class="icon-energy"></i>Reports</a></li>
+                        </ul>
+                    </li>
+                }
+                @if (UserRole == "dept_employee")
+                {
+                    @*Employee*@
+                    <li class="dropdown" id="menu_emp">
+                        <a href="#"><i class="icon-organization mr-1"></i>Menu</a>
+                        <ul>
+                            <li id="li_empProducts"><a asp-controller="ItemList" asp-action="Index"><i class="icon-rocket"></i> Items List</a></li>
+                            <li id="li_empRequestHistory"><a href="/StationeryRequests/RequestHistory?status=All"><i class="icon-briefcase"></i> Request History</a></li>
+                        </ul>
+                    </li>
+                }
+                @if (UserRole == "dept_rep")
+                {@*Employee*@
+                <li class="dropdown" id="menu_emp">
+                    <a href="#"><i class="icon-organization mr-1"></i>Menu</a>
+                    <ul>
+                        <li id="li_empProducts"><a asp-controller="ItemList" asp-action="Index"><i class="icon-rocket"></i> Items List</a></li>
+                        <li id="li_empRequestHistory"><a href="/StationeryRequests/RequestHistory?status=All"><i class="icon-briefcase"></i> Request History</a></li>
+                        <li class="dropdown" id="id_collection">
+                            <a asp-controller="Collection" asp-action="Index"><i class="icon-support"></i> Collection</a>
+                            <ul class="sub-menu">
+                                <li><a asp-controller="Collection" asp-action="collectionPoints"><i class="icon-energy"></i>Collection Point</a></li>
+                                <li><a asp-controller="Collection" asp-action="collectionList"><i class="icon-disc"></i>Collection List</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            }
+
+                @if (UserRole == "dept_delegate")
+                {
+                    @*dept_delegate*@
+                    <li class="dropdown" id="menu_depHead" style="display:block">
+                        <a href="#"><i class="icon-organization mr-1"></i>Menu</a>
+                        <ul>
+
+                            <li id="li_dHeadRequests"><a asp-controller="StationeryRequests" asp-action="StationeryRequests"><i class="icon-layers"></i> Stationery Requests</a></li>
+
+                            <li id="li_dHeadRepresentative">
+                                <a asp-controller="Representative" asp-action="AssignRepresentative"><i class="icon-support"></i> Assign Representative</a>
+                            </li>
+
+                        </ul>
+                    </li>
+                }
+
+                @if (UserRole == "dept_head")
+                {
+                    @*DepHead*@
+                    <li class="dropdown" id="menu_depHead" style="display:block">
+                        <a href="#"><i class="icon-organization mr-1"></i>Menu</a>
+                        <ul>
+                            <li id="li_dHeadHome"><a asp-controller="DHeadDash" asp-action="Index"><i class="icon-rocket"></i> Dashboard</a></li>
+                            <li id="li_dHeadRequests"><a asp-controller="StationeryRequests" asp-action="StationeryRequests"><i class="icon-layers"></i> Stationery Requests</a></li>
+                            <li id="li_dHeadDelegate"><a asp-controller="Delegate" asp-action="AddDelegate"><i class="icon-briefcase"></i> Assign Delegate</a></li>
+                            <li id="li_dHeadRepresentative">
+                                <a asp-controller="Representative" asp-action="AssignRepresentative"><i class="icon-support"></i> Assign Representative</a>
+                            </li>
+
+                        </ul>
+                    </li>
+                }
+            </ul>
+            <!-- END: Menu-->
+            <ol class="breadcrumb bg-transparent align-self-center m-0 p-0 ml-auto">
+                <li class="breadcrumb-item"><a href="#">Application</a></li>
+                <li class="breadcrumb-item active">Dashboard</li>
+            </ol>
+        </div>
+    </div>
+    <!-- END: Main Menu-->
+    <!-- START: Main Content-->
+    <main>
+        <div class="container-fluid site-width">
+            @RenderBody()
+        </div>
+    </main>
+    <!-- END: Content-->
+    <!-- START: Footer-->
+    <footer class="site-footer">
+        2020 &copy; Team5 NUS ISS
+    </footer>
+
+    <script src="~/js/UI/site.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
+    <!-- END: Footer-->
+    <!-- START: Back to top-->
+    <a href="#" class="scrollup text-center">
+        <i class="icon-arrow-up"></i>
+    </a>
+    <!-- END: Back to top-->
+    <!-- START: Template JS-->
+
+    <script src="~/vendors/jquery-ui/jquery-ui.min.js"></script>
+    <script src="~/vendors/moment/moment.js"></script>
+    <script src="~/vendors/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/vendors/slimscroll/jquery.slimscroll.min.js"></script>
+    <!-- END: Template JS-->
+    <!-- START: APP JS-->
+    <script src="~/js/UI/app.js"></script>
+    <!-- END: APP JS-->
+    <!-- START: Page Vendor JS-->
+    <script src="~/vendors/raphael/raphael.min.js"></script>
+    <script src="~/vendors/morris/morris.min.js"></script>
+    <script src="~/vendors/chartjs/Chart.min.js"></script>
+    <script src="~/vendors/starrr/starrr.js"></script>
+    <script src="~/vendors/jquery-flot/jquery.canvaswrapper.js"></script>
+    <script src="~/vendors/jquery-flot/jquery.colorhelpers.js"></script>
+    <script src="~/vendors/jquery-flot/jquery.flot.js"></script>
+    <script src="~/vendors/jquery-flot/jquery.flot.saturated.js"></script>
+    <script src="~/vendors/jquery-flot/jquery.flot.browser.js"></script>
+    <script src="~/vendors/jquery-flot/jquery.flot.drawSeries.js"></script>
+    <script src="~/vendors/jquery-flot/jquery.flot.uiConstants.js"></script>
+    <script src="~/vendors/jquery-flot/jquery.flot.legend.js"></script>
+    <script src="~/vendors/jquery-flot/jquery.flot.pie.js"></script>
+    <script src="~/vendors/chartjs/Chart.min.js"></script>
+    <script src="~/vendors/jquery-jvectormap/jquery-jvectormap-2.0.3.min.js"></script>
+    <script src="~/vendors/jquery-jvectormap/jquery-jvectormap-world-mill.js"></script>
+    <script src="~/vendors/jquery-jvectormap/jquery-jvectormap-de-merc.js"></script>
+    <script src="~/vendors/jquery-jvectormap/jquery-jvectormap-us-aea.js"></script>
+    <script src="~/vendors/apexcharts/apexcharts.min.js"></script>
+    <script src="~/vendors/toastr/toastr.min.js"></script>
+    <script src="~/vendors/sweetalert/sweetalert.min.js"></script>
+    <script src="~/vendors/sweetalert/sweetalert.js"></script>
+    <script src="~/vendors/datatable/js/jquery.dataTables.min.js"></script>
+    <!-- END: Page Vendor JS-->
+    <!-- START: Page JS-->
+    <script src="~/js/UI/home.script.js"></script>
+    <!-- END: Page JS-->
+</body>
+<!-- END: Body-->
+</html>
+

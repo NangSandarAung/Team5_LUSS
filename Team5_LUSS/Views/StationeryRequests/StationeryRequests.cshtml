@@ -1,0 +1,318 @@
+﻿@{
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var requests = (List<Request>)ViewData["Requests"];
+    var status = ""; var display = "";
+}
+
+@model List<Request>
+<!-- START: Breadcrumbs-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<link href="~/js/System/StationeryRequests/RequestStyle.css" rel="stylesheet" />
+<div class="row ">
+    <div class="col-12  align-self-center">
+        <div class="sub-header mt-3 py-3 align-self-center d-sm-flex w-100 rounded">
+            <div class="w-sm-100 mr-auto"><h5 class="mb-0">Department Request History</h5></div>
+        </div>
+    </div>
+</div>
+<!-- END: Breadcrumbs-->
+<!-- Edit request -->
+
+<div class="modal fade" id="editrequest">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="icon-pencil"></i> Request Details
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i class="icon-close"></i>
+                </button>
+            </div>
+            <div class="se-pre-con">
+                <div class="loader"></div>
+            </div>
+            <form class="edit-request-form" asp-action="ApproveRequestByDepHead" method="post">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <input type="hidden" id="hidRequestID" />
+                            <div class="row">
+                                <label for="requestID" class="col-sm-4 col-form-label">Request ID :</label>
+                                <label for="requestID" class="col-sm-4 col-form-label"><span id="lblRequestID">1</span></label>
+
+                            </div>
+                            <div class="row">
+                                <label for="requestBy" class="col-sm-4 col-form-label">Request By :</label>
+                                <label for="requestBy" class="col-sm-4 col-form-label"><span id="lblRequestBy">Test</span></label>
+                            </div>
+                            <div class="row">
+                                <label for="status" class="col-sm-4 col-form-label">Status :</label>
+                                <label for="status" class="col-sm-4 col-form-label"><span id="lblStatus">Status</span></label>
+
+                            </div>
+                            <div class="row">
+                                <label for="updataBy" class="col-sm-4 col-form-label">Update By :</label>
+                                <label for="updataBy" class="col-sm-4 col-form-label"><span id="lblUpdateBy">Test</span></label>
+
+                            </div>
+                            <div class="row">
+                                <label for="username" class="col-sm-2 col-form-label"></label>
+                                <div class="col-sm-10">
+                                    <div class="table-responsive">
+                                        <table class="table layout-secondary" id="requestItem">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">ItemName</th>
+                                                    <th scope="col">UOM</th>
+                                                    <th scope="col">Request Qty</th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                             
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label for="username" class="col-sm-2 col-form-label">Comment</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control" name="comment" id="txtComment" placeholder="Comment....">-</textarea>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                    <div class="col-sm-10" id="status">
+                        <button type="button" class="btn btn-danger" onclick="UpdateRequest(2)">Reject</button>
+                        <button type="button" class="btn btn-success" onclick="UpdateRequest(1)"> Approve</button>
+                    </div>
+
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- START: Card Data-->
+<div class="row row-eq-height">
+    <div class="col-12 col-lg-3 mt-3 todo-menu-bar flip-menu pr-lg-0">
+
+        <div class="card border h-100 request-menu-section">
+
+            <ul class="nav flex-column request-menu">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-requesttype="request">
+                        All
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" data-requesttype="pending-request">
+                        Pending
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-requesttype="approved-request">
+                        Approved
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-requesttype="rejected-request">
+                        Rejected
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-requesttype="packed-request">
+                        Packed
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-requesttype="pendingDelivery-request">
+                        PendingDelivery
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-requesttype="received-request">
+                        Received
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-requesttype="completed-request">
+                        Completed
+                    </a>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+    <div class="col-12 col-lg-9 mt-3 pl-lg-0">
+        <div class="card border h-100 request-list-section">
+            <div class="card-header border-bottom p-1 d-flex">
+                <a href="#" class="d-inline-block d-lg-none flip-menu-toggle"><i class="icon-menu"></i></a>
+                <input type="text" class="form-control border-0 p-2 w-100 h-100 request-search" placeholder="Search ...">
+            </div>
+            <div class="card-body p-0">
+                <div class="requests list">
+                    @if (requests != null)
+                    {
+                        @foreach (Request c in requests)
+                        {
+                            @switch (c.RequestStatus)
+                            {
+                                case Status.EOrderStatus.Pending: status = "pending-request"; display = "block"; break;
+                                case Status.EOrderStatus.Approved: status = "approved-request"; display = "none"; break;
+                                case Status.EOrderStatus.Rejected: status = "rejected-request"; display = "none"; break;
+                                case Status.EOrderStatus.Packed: status = "packed-request"; display = "none"; break;
+                                case Status.EOrderStatus.PendingDelivery: status = "pendingDelivery-request"; display = "none"; break;
+                                case Status.EOrderStatus.Received: status = "received-request"; display = "none"; break;
+                                case Status.EOrderStatus.Completed: status = "completed-request"; display = "none"; break;
+                            }
+                            <div class="request @status" style="display:@display">
+                                <div class="request-content  @status" data-status=@status>
+                                    <div class="request-info">
+                                        <p class="mb-0 small">ID: </p>
+                                        <p class="request-no">@c.RequestID</p>
+                                    </div>
+                                    <div class="request-info">
+                                        <p class="mb-0 small">Request By: </p>
+                                        <p class="cliname">@c.RequestByUser.FirstName   @c.RequestByUser.LastName  </p>
+                                    </div>
+
+                                    <div class="request-status-info">
+                                        <p class="mb-0 small">Status </p>
+                                        <p class="request-status"></p>
+                                    </div>
+                                    <div class="request-info">
+                                        <p class="mb-0 small">Request Date: </p>
+                                        <p class="request-due-date">@Html.DisplayFor(modelItem => c.RequestDate)</p>
+                                    </div>
+
+                                    <div class="line-h-1 h3">
+                                        <a class="text-success" href="#" data-toggle="modal" @*data-target="#editrequest_@c.RequestID"*@
+                                           onclick="GetRequestDetail('@c.RequestID','@c.RequestByUser.FirstName  @c.RequestByUser.LastName' ,'@c.RequestStatus',
+                                            '@c.Comment','@c.ModifiedByUser.FirstName  @c.ModifiedByUser.LastName');">
+                                            <i class="icon-note"></i>
+                                        </a>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        }
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END: Card DATA-->
+<!-- START: Page JS-->
+
+<script src="~/js/System/StationeryRequests/jquery.min.js"></script>
+
+@section Scripts{
+    <script>
+
+        function UpdateRequest(status) {       /*  Approve Reject Function*/
+            var comment = $("#txtComment").val();
+            var id = $("#hidRequestID").val();
+          console.log()
+          $.ajax({
+              type: "GET",
+              url: '@Url.Action("ApproveRequestByDepHead", "StationeryRequests")',
+              data: { id, status, comment},
+              success: function (result) {
+                  if (status == '1') {
+                      toastr["success"]('Approved!');
+                      $('#editrequest').modal('hide');
+                  }
+                  else {
+
+                      toastr["info"]('Reject!');
+                      $('#editrequest').modal('hide');
+
+                  }
+                  location.reload();
+              }
+          })
+        };
+
+        function GetRequestDetail(id, requestBy, status,comment,modifiedBy) {    /*Show Rewust Detail to make approve/reject*/
+
+          $.ajax({
+              type: "GET",
+              url: '@Url.Action("GetRequestDetail", "StationeryRequests")',
+              data: { id},
+              success: function (result) {
+                  if (result != null) {
+                      var detail_items = "";
+                      $("#requestItem > tbody:last-child").empty();
+                      //$('#requestItem > tbody:last-child').append("");
+                      $.each(result, function (key, value) {
+                          detail_items +='<tr><th scope="row">' + value.item.itemCode + '</th>'
+                              + '<td>' + value.item.uom + '</td>'
+                              + '<td>' + value.requestQty + '</td></tr>';
+                      });
+
+                      $('#requestItem > tbody:last-child').append(detail_items);
+                      $('#hidRequestID').val(id);
+                      $('#lblRequestID').html(id);
+                      $('#lblRequestBy').html(requestBy);
+                      $('#lblStatus').html(status);
+                      $('#lblUpdateBy').html(modifiedBy);
+                      $('#txtComment').html(comment);
+                      $("#editrequest").modal();
+
+                      if (status == "Pending") {
+                          $('#status').css("display", "block");
+
+                      }
+                      else {
+                          $('#status').css("display", "none");
+                      }
+                  }
+
+              }
+          })
+        };
+
+           $('.request-menu a').on('click', function () {
+               $('.request-menu a').removeClass('active');
+               $(this).addClass('active');
+               $('.request').hide();
+               $('.' + $(this).data("requesttype")).show(500);
+               return false;
+           });
+        $(".request-search").on("keyup", function () {
+            var v = $(".request-search").val().toLowerCase();
+            var rows = $('.' + $('.request-menu li a.active').data("requesttype"));
+
+            for (var i = 0; i < rows.length; i++) {
+                var fullname = rows[i].getElementsByClassName("request-content");
+                fullname = fullname[0].innerHTML.toLowerCase();
+                if (fullname) {
+                    if (v.length == 0 || (v.length < 1 && fullname.indexOf(v) == 0) || (v.length >= 1 && fullname.indexOf(v) > -1)) {
+                        rows[i].style.animation = 'fadein 7s';
+                        rows[i].style.display = "block";
+                    } else {
+                        rows[i].style.display = "none";
+                        rows[i].style.animation = 'fadeout 7s';
+                    }
+                }
+            }
+        });
+
+    </script>
+}
+<!-- END: Page JS-->
